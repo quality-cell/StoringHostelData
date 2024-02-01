@@ -43,7 +43,7 @@ public class GuestService {
             return new GuestDTO(guest.get());
         }
 
-        throw new EntityNotFoundException("Постояльца с id: " + guestId + " не найден");
+        throw new EntityNotFoundException("Постоялец с id: " + guestId + " не найден");
     }
 
     public List<GuestDTO> getByRoomId(Integer id) {
@@ -72,7 +72,7 @@ public class GuestService {
         Optional<Guest> guestOptional = guestRepository.findById(id);
 
         if (guestOptional.isEmpty()) {
-            throw new EntityNotFoundException("Постояльца с id: " + id + " не найдено");
+            throw new EntityNotFoundException("Постоялец с id: " + id + " не найден");
         }
 
         Guest guest = guestOptional.get();
@@ -89,7 +89,7 @@ public class GuestService {
         Optional<Guest> guestOptional = guestRepository.findById(guestId);
 
         if (guestOptional.isEmpty()) {
-            throw new EntityNotFoundException("Постояльца с id: " + guestId + " не найдено");
+            throw new EntityNotFoundException("Постоялец с id: " + guestId + " не найден");
         }
 
         guestRepository.deleteById(guestId);
