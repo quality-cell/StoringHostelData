@@ -408,7 +408,7 @@ public class RoomControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(room);
         } catch (EntityExistsException e) {
-            assertEquals("Комнаты с id: " + roomId + " ещё занята и ее нельзя обновить", e.getCause().getMessage());
+            assertEquals("Комната с id: " + roomId + " ещё занята и ее нельзя обновить", e.getCause().getMessage());
         }
     }
 
