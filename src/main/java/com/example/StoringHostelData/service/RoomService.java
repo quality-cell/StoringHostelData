@@ -44,7 +44,7 @@ public class RoomService {
             return new RoomDTO(room.get());
         }
 
-        throw new EntityNotFoundException("Комнаты с id: " + roomId + " не найдено");
+        throw new EntityNotFoundException("Комната с id: " + roomId + " не найдена");
     }
 
     public void addRoom(Room room) {
@@ -56,11 +56,11 @@ public class RoomService {
         List<Guest> guestOptional = guestRepository.findByRoomId(id);
 
         if (roomOptional.isEmpty()) {
-            throw new EntityNotFoundException("Комнаты с id: " + id + " не найдено");
+            throw new EntityNotFoundException("Комната с id: " + id + " не найдена");
         }
 
         if (!guestOptional.isEmpty()) {
-            throw new EntityExistsException("Комнаты с id: " + id + " ещё занята и ее нельзя обновить");
+            throw new EntityExistsException("Комната с id: " + id + " ещё занята и ее нельзя обновить");
         }
 
         Room room = roomOptional.get();
@@ -77,7 +77,7 @@ public class RoomService {
         Optional<Room> roomOptional = roomRepository.findById(roomId);
 
         if (roomOptional.isEmpty()) {
-            throw new EntityNotFoundException("Комнаты с id: " + roomId + " не найдено");
+            throw new EntityNotFoundException("Комната с id: " + roomId + " не найдена");
         }
 
         roomRepository.deleteById(roomId);
