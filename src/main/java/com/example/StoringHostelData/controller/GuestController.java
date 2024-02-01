@@ -2,7 +2,7 @@ package com.example.StoringHostelData.controller;
 
 import com.example.StoringHostelData.Enum.ComfortType;
 import com.example.StoringHostelData.dto.GuestDTO;
-import com.example.StoringHostelData.seervice.GuestService;
+import com.example.StoringHostelData.service.GuestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
