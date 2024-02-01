@@ -61,24 +61,6 @@ BEFORE DELETE ON guest
 FOR EACH ROW
 EXECUTE FUNCTION increase_seats_on_delete();
 
-CREATE OR REPLACE FUNCTION delete_room_with_check() RETURNS TRIGGER AS $$
-BEGIN
-    IF (SELECT COUNT(*) FROM guest WHERE room_id = OLD.id) > 0 THEN
-        RAISE EXCEPTION 'Комната с id: % содержит гостей', OLD.id;
-        RETURN NULL;
-    END IF;
-
-    RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER before_delete_room_trigger
-BEFORE DELETE ON room
-FOR EACH ROW
-EXECUTE FUNCTION delete_room_with_check();
-
-
-
 INSERT INTO guest(room_id, second_name, name, surname, gender) VALUES ('1', 'Романов', 'Максим', 'Юрьевич', 'true');
 INSERT INTO guest(room_id, second_name, name, surname, gender) VALUES ('1', 'Человек', 'Паук', 'Бетменович', 'true');
 INSERT INTO guest(room_id, second_name, name, surname, gender) VALUES ('1', 'Железный', 'Человек', 'Рахманович', 'true');

@@ -1,6 +1,6 @@
 package com.example.StoringHostelData;
 
-import jakarta.persistence.EntityExistsException;
+import jakarta.servlet.ServletException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -403,13 +403,35 @@ public class RoomControllerTest {
                 }
                 """;
 
-        try {
-            var requestPatchBuilder = patch("/room/" + roomId)
+        ServletException exception = assertThrows(ServletException.class, () -> {
+            this.mockMvc.perform(patch("/room/" + roomId)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(room);
-        } catch (EntityExistsException e) {
-            assertEquals("Комната с id: " + roomId + " ещё занята и ее нельзя обновить", e.getCause().getMessage());
-        }
+                    .content(room));
+        });
+
+        assertTrue(exception.getRootCause().getMessage().contains("Комната с id: " + roomId + " ещё занята и ее нельзя обновить"));
+    }
+
+    @Test
+    void updateRoomWithEntityNotFoundException() {
+        int roomId = 15;
+        String room = """
+                {
+                    "floor": 1,
+                    "roomNumber": 6,
+                    "roomType": true,
+                    "comfortType": "STANDARD",
+                    "numberOfSeats": 4
+                }
+                """;
+
+        ServletException exception = assertThrows(ServletException.class, () -> {
+            this.mockMvc.perform(patch("/room/" + roomId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(room));
+        });
+
+        assertTrue(exception.getRootCause().getMessage().contains("Комната с id: " + roomId + " не найдена"));
     }
 
     @Test
@@ -544,5 +566,44 @@ public class RoomControllerTest {
                         content().contentType(MediaType.APPLICATION_JSON),
                         content().json(rooms)
                 );
+    }
+
+    @Test
+    void deleteRoomWithEntityNotFoundException() {
+        int roomId = 15;
+
+        ServletException exception = assertThrows(ServletException.class, () -> {
+            this.mockMvc.perform(delete("/room/" + roomId));
+        });
+
+        assertTrue(exception.getRootCause().getMessage().contains("Комната с id: " + roomId + " не найдена"));
+    }
+
+    @Test
+    void deleteRoomWithErrorMessageExistGuests() {
+        int roomId = 1;
+
+        ServletException exception = assertThrows(ServletException.class, () -> {
+            this.mockMvc.perform(delete("/room/" + roomId));
+        });
+
+        assertTrue(exception.getRootCause().getMessage().contains("Комната с id: " + roomId + " ещё занята и ее нельзя удалять"));
+    }
+
+    @Test
+    void getAllRoomsWithEntityNotFoundException() throws Exception {
+        for (int i = 1; i <= 9; i++) {
+            this.mockMvc.perform(delete("/guest/" + i));
+        }
+
+        for (int i = 1; i <= 5; i++) {
+            this.mockMvc.perform(delete("/room/" + i));
+        }
+
+        ServletException exception = assertThrows(ServletException.class, () -> {
+            this.mockMvc.perform(get("/rooms"));
+        });
+
+        assertTrue(exception.getRootCause().getMessage().contains("Комнат не найдено"));
     }
 }

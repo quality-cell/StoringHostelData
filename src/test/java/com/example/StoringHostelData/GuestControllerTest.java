@@ -1,5 +1,6 @@
 package com.example.StoringHostelData;
 
+import jakarta.servlet.ServletException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -618,5 +620,95 @@ class GuestControllerTest {
 						status().isOk(),
 						content().json(guests)
 				);
+	}
+
+	@Test
+	void updateGuestWithEntityNotFoundException() {
+		int id = 16;
+		String guest = """
+                {
+				    "secondName": "Трамп",
+				    "name": "Дональд",
+				    "surname": "Дак",
+				    "gender": true
+                }
+                """;
+
+		ServletException exception = assertThrows(ServletException.class, () -> {
+			this.mockMvc.perform(patch("/guest/" + id)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(guest));
+		});
+
+		assertTrue(exception.getRootCause().getMessage().contains("Постоялец с id: " + id + " не найден"));
+	}
+
+	@Test
+	void deleteGuestWithEntityNotFoundException() {
+		int id = 15;
+
+		ServletException exception = assertThrows(ServletException.class, () -> {
+			this.mockMvc.perform(delete("/guest/" + id));
+		});
+
+		assertTrue(exception.getRootCause().getMessage().contains("Постоялец с id: " + id + " не найден"));
+	}
+
+	@Test
+	void addGuestWithErrorMessageGender() {
+		int roomId = 5;
+		String guest = """
+                {
+				    "secondName": "Антонов",
+				    "name": "Антон",
+				    "surname": "Антонович",
+				    "gender": true
+                }
+                """;
+
+		Exception exception = assertThrows(Exception.class, () -> {
+			this.mockMvc.perform(post("/add/guest/" + roomId)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(guest));
+		});
+
+		assertTrue(exception.getCause().getMessage().contains("Пол постояльца не совпадает с типом комнаты"));
+	}
+
+	@Test
+	void addGuestWithErrorMessageNumberOfSeats() throws Exception {
+		int roomId = 1;
+		String guest = """
+                {
+				    "secondName": "Антонов",
+				    "name": "Антон",
+				    "surname": "Антонович",
+				    "gender": true
+                }
+                """;
+		this.mockMvc.perform(post("/add/guest/" + roomId)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(guest));
+
+		Exception exception = assertThrows(Exception.class, () -> {
+			this.mockMvc.perform(post("/add/guest/" + roomId)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(guest));
+		});
+
+		assertTrue(exception.getCause().getMessage().contains("Нет свободных мест"));
+	}
+
+	@Test
+	void getAllGuestsWithEntityNotFoundException() throws Exception {
+		for (int i = 1; i <= 9; i++) {
+			this.mockMvc.perform(delete("/guest/" + i));
+		}
+
+		ServletException exception = assertThrows(ServletException.class, () -> {
+			this.mockMvc.perform(get("/guests"));
+		});
+
+		assertTrue(exception.getRootCause().getMessage().contains("Постояльцев не найдено"));
 	}
 }

@@ -75,9 +75,14 @@ public class RoomService {
 
     public void deleteRoom(Integer roomId) {
         Optional<Room> roomOptional = roomRepository.findById(roomId);
+        List<Guest> guestList = guestRepository.findByRoomId(roomId);
 
         if (roomOptional.isEmpty()) {
             throw new EntityNotFoundException("Комната с id: " + roomId + " не найдена");
+        }
+
+        if (!guestList.isEmpty()) {
+            throw new EntityExistsException("Комната с id: " + roomId + " ещё занята и ее нельзя удалять");
         }
 
         roomRepository.deleteById(roomId);
