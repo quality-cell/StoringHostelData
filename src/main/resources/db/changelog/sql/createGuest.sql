@@ -14,7 +14,7 @@ CREATE OR REPLACE FUNCTION check_guest_room_conditions()
 RETURNS TRIGGER AS $$
 BEGIN
   IF NEW.gender != (SELECT room_type FROM room WHERE id = NEW.room_id) THEN
-    RAISE EXCEPTION 'Гендер постояльца не совпадает с типом комнаты';
+    RAISE EXCEPTION 'Пол постояльца не совпадает с типом комнаты';
   END IF;
 
   IF (SELECT number_of_seats FROM room WHERE id = NEW.room_id) <= 0 THEN
